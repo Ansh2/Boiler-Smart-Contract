@@ -40,6 +40,14 @@ contract RealEstate {
         payable (maxBuyer).transfer(maxBid);
     }
 
+    function extendAuction(uint256 addSeconds) public {
+        require(msg.sender == seller , "Only for seller to update");
+        require(!ended, "Auction already ended, cannot extend further!");
+
+        endTime += addSeconds;
+
+    }
+
     function viewProperty() public view returns(string memory) {
         string memory description = string.concat("The name of the Property is ", propertyName, " and is worth $", Strings.toString(initialPrice));
         return description;
@@ -49,4 +57,5 @@ contract RealEstate {
         string memory currentBid = string.concat("The current bid on this Property is $", Strings.toString(maxBid));
         return currentBid;
     }
+
 }
