@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.19;
 
-import "./Strings.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 
 contract RealEstate {
     bool public ended;
@@ -13,49 +13,49 @@ contract RealEstate {
     string public propertyName;
     uint256 public initialPrice;
 
-    constructor(uint256 ending, string memory name, uint256 price) {
+    constructor(uint256 ending, string memory name, uint256 price) payable {
         ended = false;
         endTime = ending;
         seller = msg.sender;
         propertyName = name;
         initialPrice = price;
+        maxBuyer = seller;
+        maxBid = 0;
     }
 
     function getTime() public view returns(uint256) {
-        return block.timestamp;
+        return block.timestamp; // This returns the current time
     }
 
     function propertyBid() public payable {
-        require (ended == false);
-        require (msg.value > maxBid);
-        payable (maxBuyer).transfer(maxBid);
-        maxBid = msg.value;
-        maxBuyer = msg.sender;
+        require (ended == false); // Checks whether the bid hasn't ended
+        require (msg.value > maxBid && msg.value >= initialPrice); // Ensures that the new bid is greater than the previous bid
+        payable (maxBuyer).transfer(maxBid); // Pays back the previous bid to the previous bidder
+        maxBid = msg.value; // Changes the bid to the current bid
+        maxBuyer = msg.sender; // Changes the bidder to the current bidder
     }
 
     function settleProperty() public payable {
-        require (ended == false);
-        require (getTime() >= endTime);
-        ended = true;
-        payable (maxBuyer).transfer(maxBid);
+        require (ended == false); // Checks whether the bid hasn't ended
+        require (getTime() >= endTime); // Checks whether the current time has passed the end time
+        ended = true; // Indicates that the bid has ended
+        payable (maxBuyer).transfer(maxBid); // Pays back the current bid to the current bidder indicating that they have won
     }
 
-    function extendAuction(uint256 addSeconds) public {
-        require(msg.sender == seller , "Only for seller to update");
-        require(!ended, "Auction already ended, cannot extend further!");
+    function extendBid(uint256 addSeconds) public {
+        require(msg.sender == seller , "Only for seller to update"); // Only the seller can access this function
+        require(!ended, "Auction already ended, cannot extend further!"); // Ensures that the bid has not ended
 
-        endTime += addSeconds;
-
+        endTime += addSeconds; // Increases the end time for the bid
     }
 
     function viewProperty() public view returns(string memory) {
-        string memory description = string.concat("The name of the Property is ", propertyName, " and is worth $", Strings.toString(initialPrice));
-        return description;
+        string memory description = string.concat("The name of the Property is ", propertyName, " and is worth $", Strings.toString(initialPrice)); // Creates a new string
+        return description; // Returns the string
     }
 
     function viewCurrentBid() public view returns(string memory) {
-        string memory currentBid = string.concat("The current bid on this Property is $", Strings.toString(maxBid));
-        return currentBid;
+        string memory currentBid = string.concat("The current bid on this Property is $", Strings.toString(maxBid)); // Creates a new string
+        return currentBid; // Returns the string
     }
-
 }
