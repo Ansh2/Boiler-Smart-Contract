@@ -27,6 +27,12 @@ contract RealEstate {
         return block.timestamp; // This returns the current time
     }
 
+    function setSeller(address newSeller) public {
+        require (msg.sender == seller); 
+        require (!ended); 
+        seller = newSeller;
+    }
+
     function propertyBid() public payable {
         require (ended == false); // Checks whether the bid hasn't ended
         require (msg.value > maxBid && msg.value >= initialPrice); // Ensures that the new bid is greater than the previous bid
@@ -36,7 +42,7 @@ contract RealEstate {
     }
 
     function cancelAuction() public {
-        require (msg.sender == seller)
+        require (msg.sender == seller);
         require (!ended);
         ended = true;
         payable (maxBuyer).transfer(maxBid); // Pays back the previous bid to the previous bidder
@@ -59,6 +65,13 @@ contract RealEstate {
     function viewProperty() public view returns(string memory) {
         string memory description = string.concat("The name of the Property is ", propertyName, " and is worth $", Strings.toString(initialPrice)); // Creates a new string
         return description; // Returns the string
+    }
+
+    function updateInfo(string newName, uint256 newPrice) public {
+        require(msg.sender == seller);
+        require(!ended); 
+        propertyName = newName;
+        initialPrice = newPrice;
     }
 
     function viewCurrentBid() public view returns(string memory) {
