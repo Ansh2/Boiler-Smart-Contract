@@ -74,6 +74,14 @@ contract RealEstate {
         initialPrice = newPrice;
     }
 
+    function auctionTimeLeft() public view returns (uint256) {
+        require(!ended);
+        require(!(getTime() >= endTime));
+
+        //since the following condition indicates the current time hasn't passed yet, we can easily determine the time left within auction
+        return endTime - getTime();
+    }
+
     function viewCurrentBid() public view returns(string memory) {
         string memory currentBid = string.concat("The current bid on this Property is $", Strings.toString(maxBid)); // Creates a new string
         return currentBid; // Returns the string
