@@ -35,6 +35,13 @@ contract RealEstate {
         maxBuyer = msg.sender; // Changes the bidder to the current bidder
     }
 
+    function cancelAuction() public {
+        require (msg.sender == seller)
+        require (!ended);
+        ended = true;
+        payable (maxBuyer).transfer(maxBid); // Pays back the previous bid to the previous bidder
+    }
+
     function settleProperty() public payable {
         require (ended == false); // Checks whether the bid hasn't ended
         require (getTime() >= endTime); // Checks whether the current time has passed the end time
